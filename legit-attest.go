@@ -68,7 +68,7 @@ func GetToken() (string, error) {
 	}
 
 	var result struct {
-		Count string `json:"count"`
+		Count int    `json:"count"`
 		Value string `json:"value"`
 	}
 
