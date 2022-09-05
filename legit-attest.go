@@ -110,6 +110,10 @@ func AttestWithToken(data interface{}, jwt string) ([]byte, error) {
 		return nil, fmt.Errorf("failed to read signing response: %v", body)
 	}
 
+	if response.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("bad response from server (%v): %v\n", response.StatusCode, body)
+	}
+
 	return body, nil
 }
 
