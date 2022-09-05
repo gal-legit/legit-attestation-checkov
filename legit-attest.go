@@ -111,7 +111,7 @@ func AttestWithToken(data interface{}, jwt string) ([]byte, error) {
 	}
 
 	if response.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("bad response from server (%v): %v\n", response.StatusCode, body)
+		return nil, fmt.Errorf("bad response from server (%v): %v\n", response.StatusCode, string(body))
 	}
 
 	return body, nil
