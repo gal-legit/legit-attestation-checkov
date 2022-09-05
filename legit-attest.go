@@ -81,11 +81,7 @@ func GetToken() (string, error) {
 }
 
 func AttestWithToken(data interface{}, jwt string) ([]byte, error) {
-	var jsonData = struct {
-		Payload interface{} `json:"payload"`
-	}{data}
-
-	attBytes, err := json.Marshal(jsonData)
+	attBytes, err := json.Marshal(data)
 	if err != nil {
 		return nil, fmt.Errorf("failed marshalling json: %w", err)
 	}
