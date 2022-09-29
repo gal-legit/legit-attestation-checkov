@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/legit-labs/legit-attest/pkg/legit_verify_attestation"
+	"github.com/legit-labs/legit-attestation/pkg/legit_verify_attestation"
 )
 
 const (

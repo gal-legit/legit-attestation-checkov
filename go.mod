@@ -1,4 +1,4 @@
-module github.com/legit-labs/legit-attest
+module github.com/legit-labs/legit-attestation
 
 go 1.18
 
