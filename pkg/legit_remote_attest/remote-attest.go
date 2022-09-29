@@ -8,6 +8,11 @@ import (
 	"net/http"
 )
 
+type LegitEndpoint struct {
+	Url      string
+	ApiToken string
+}
+
 func AttestWithToken(data interface{}, endpoint LegitEndpoint, jwt string) ([]byte, error) {
 	attBytes, err := json.Marshal(data)
 	if err != nil {
