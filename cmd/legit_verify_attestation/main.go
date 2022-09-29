@@ -6,8 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/legit-labs/legit-attest/pkg/verify_attestation"
-	"github.com/legit-labs/legit-verify-attestation/pkg/verify_attestation"
+	"github.com/legit-labs/legit-attest/pkg/legit_verify_attestation"
 )
 
 const (
@@ -46,7 +45,7 @@ func main() {
 	}
 
 	shouldSkip := shouldSkipVerification()
-	payload, err := verify_attestation.ExtractPayload(context.Background(), keyPath, attestation, shouldSkip)
+	payload, err := legit_verify_attestation.ExtractPayload(context.Background(), keyPath, attestation, shouldSkip)
 	if err != nil {
 		log.Panicf("attestation verification failed: %v", err)
 	}

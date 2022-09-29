@@ -1,4 +1,4 @@
-package verify_attestation
+package legit_verify_attestation
 
 import (
 	"context"
