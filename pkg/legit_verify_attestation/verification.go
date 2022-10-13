@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/in-toto/in-toto-golang/in_toto"
 	dsselib "github.com/secure-systems-lab/go-securesystemslib/dsse"
 	"github.com/sigstore/cosign/pkg/signature"
 	"github.com/sigstore/sigstore/pkg/signature/dsse"
@@ -21,7 +22,7 @@ func attestationToEnvelope(attestation []byte) (*dsselib.Envelope, error) {
 	return &env, nil
 }
 
-func verifySig(envelope *dsselib.Envelope, ctx context.Context, keyRef string) error {
+func verifySig(ctx context.Context, envelope *dsselib.Envelope, keyRef string) error {
 	sv, err := signature.PublicKeyFromKeyRef(ctx, keyRef)
 	if err != nil {
 		return fmt.Errorf("Failed to load pub key: %v\n", err)
@@ -46,7 +47,7 @@ func ExtractPayload(ctx context.Context, keyRef string, attestation []byte, skip
 	}
 
 	if !skipSigVerification {
-		err = verifySig(envelope, ctx, keyRef)
+		err = verifySig(ctx, envelope, keyRef)
 		if err != nil {
 			return nil, err
 		}
@@ -62,6 +63,30 @@ func ExtractPayload(ctx context.Context, keyRef string, attestation []byte, skip
 
 func VerifiedPayload(ctx context.Context, keyRef string, attestation []byte) ([]byte, error) {
 	return ExtractPayload(ctx, keyRef, attestation, false)
+}
+
+func VerifiedTypedPayload(ctx context.Context, keyRef string, attestation []byte, payload *interface{}, digest string) error {
+	payloadBytes, err := VerifiedPayload(ctx, keyRef, attestation)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(payloadBytes, payload)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal predicate: %v", err)
+	}
+
+	header, ok := (*payload).(in_toto.StatementHeader)
+	if !ok {
+		return fmt.Errorf("The payload does not contain a statement header: %T", *payload)
+	}
+
+	statementDigest := header.Subject[0].Digest["sha256"]
+	if statementDigest != digest {
+		return fmt.Errorf("expected digest %v does not match actual: %v", digest, statementDigest)
+	}
+
+	return nil
 }
 
 func UnverifiedPayload(ctx context.Context, keyRef string, attestation []byte) ([]byte, error) {
