@@ -65,28 +65,29 @@ func VerifiedPayload(ctx context.Context, keyRef string, attestation []byte) ([]
 	return ExtractPayload(ctx, keyRef, attestation, false)
 }
 
-func VerifiedTypedPayload(ctx context.Context, keyRef string, attestation []byte, payload *interface{}, digest string) error {
+func VerifiedTypedPayload[T any](ctx context.Context, keyRef string, attestation []byte, digest string) (*T, error) {
 	payloadBytes, err := VerifiedPayload(ctx, keyRef, attestation)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	err = json.Unmarshal(payloadBytes, payload)
+	var payload T
+	err = json.Unmarshal(payloadBytes, &payload)
 	if err != nil {
-		return fmt.Errorf("failed to unmarshal predicate: %v", err)
+		return nil, fmt.Errorf("failed to unmarshal predicate: %v", err)
 	}
 
-	header, ok := (*payload).(in_toto.StatementHeader)
+	header, ok := any(payload).(in_toto.StatementHeader)
 	if !ok {
-		return fmt.Errorf("The payload does not contain a statement header: %T", *payload)
+		return nil, fmt.Errorf("The payload does not contain a statement header: %T", payload)
 	}
 
 	statementDigest := header.Subject[0].Digest["sha256"]
 	if statementDigest != digest {
-		return fmt.Errorf("expected digest %v does not match actual: %v", digest, statementDigest)
+		return nil, fmt.Errorf("expected digest %v does not match actual: %v", digest, statementDigest)
 	}
 
-	return nil
+	return &payload, nil
 }
 
 func UnverifiedPayload(ctx context.Context, keyRef string, attestation []byte) ([]byte, error) {
