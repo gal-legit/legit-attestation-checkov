@@ -39,8 +39,8 @@ func NewRemoteAttestationData(subjectsBase64 string) RemoteAttestationData {
 	}
 }
 
-func (rd *RemoteAttestationData) asPostData() (*bytes.Buffer, error) {
-	envBytes, err := json.Marshal(*rd)
+func (rd RemoteAttestationData) asPostData() (*bytes.Buffer, error) {
+	envBytes, err := json.Marshal(rd)
 	if err != nil {
 		return nil, fmt.Errorf("failed marshalling json: %w", err)
 	}
@@ -48,8 +48,8 @@ func (rd *RemoteAttestationData) asPostData() (*bytes.Buffer, error) {
 	return bytes.NewBuffer(envBytes), nil
 }
 
-func AttestWithToken(data RemoteAttestationData, endpoint LegitEndpoint, jwt string) ([]byte, error) {
-	postData, err := data.asPostData()
+func AttestWithToken(subjectsBase64 string, endpoint LegitEndpoint, jwt string) ([]byte, error) {
+	postData, err := NewRemoteAttestationData(subjectsBase64).asPostData()
 	if err != nil {
 		return nil, err
 	}
@@ -83,13 +83,13 @@ func AttestWithToken(data RemoteAttestationData, endpoint LegitEndpoint, jwt str
 	return body, nil
 }
 
-func Attest(data RemoteAttestationData, endpoint LegitEndpoint) ([]byte, error) {
+func Attest(subjectsBase64 string, endpoint LegitEndpoint) ([]byte, error) {
 	token, err := GetJWTToken()
 	if err != nil {
 		return nil, err
 	}
 
-	result, err := AttestWithToken(data, endpoint, token)
+	result, err := AttestWithToken(subjectsBase64, endpoint, token)
 	if err != nil {
 		return nil, err
 	}
