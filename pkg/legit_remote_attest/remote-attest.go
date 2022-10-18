@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
+	"strings"
 )
 
 type LegitEndpoint struct {
@@ -16,6 +18,25 @@ type LegitEndpoint struct {
 type RemoteAttestationData struct {
 	Env            map[string]string
 	SubjectsBase64 string
+}
+
+func getEnv() map[string]string {
+	envStrings := os.Environ()
+	env := make(map[string]string, len(envStrings))
+	for _, kv := range envStrings {
+		pair := strings.SplitN(kv, "=", 2)
+		key := pair[0]
+		value := pair[1]
+		env[key] = value
+	}
+	return env
+}
+
+func NewRemoteAttestationData(subjectsBase64 string) RemoteAttestationData {
+	return RemoteAttestationData{
+		Env:            getEnv(),
+		SubjectsBase64: subjectsBase64,
+	}
 }
 
 func (rd *RemoteAttestationData) asPostData() (*bytes.Buffer, error) {
