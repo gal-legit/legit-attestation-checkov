@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"log"
+	"os"
 
 	"github.com/legit-labs/legit-attestation/pkg/legit_remote_attest"
 )
@@ -27,5 +28,12 @@ func main() {
 		log.Panicf("missing api token")
 	}
 
-	legit_remote_attest.Attest(subjectsBase64, endpoint)
+	res, err := legit_remote_attest.Attest(subjectsBase64, endpoint)
+	if err != nil {
+		log.Panicf("failed to attest: %v", err)
+	}
+
+	if _, err := os.Stdout.Write(res); err != nil {
+		log.Panicf("failed to output: %v", err)
+	}
 }
