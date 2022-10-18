@@ -47,6 +47,15 @@ func (rd RemoteAttestationData) asPostData() (*bytes.Buffer, error) {
 
 	return bytes.NewBuffer(envBytes), nil
 }
+func (rd RemoteAttestationData) ApplyToEnv() error {
+	for k, v := range rd.Env {
+		if err := os.Setenv(k, v); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
 
 func AttestWithToken(subjectsBase64 string, endpoint LegitEndpoint, jwt string) ([]byte, error) {
 	postData, err := NewRemoteAttestationData(subjectsBase64).asPostData()
